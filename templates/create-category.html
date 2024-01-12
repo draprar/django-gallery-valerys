@@ -1,0 +1,25 @@
+{% extends "core.html" %}
+{% block title %} Create category {% endblock %}
+
+{% block content %}
+
+<section class="my-5">
+    <div class="container">
+        <div class="row justify-content-center py-4">
+            <div class="col-lg-8 my-2">
+                <h3>Create new category</h3>
+                <hr>
+            </div>
+            <form class="col-lg-8 my-2" method="POST">
+                {% csrf_token %}
+                <div class="form-group d-flex flex-row my-2">
+                    <input class="form-control" type="text" name="title">
+                    <button class="btn btn-primary ms-2 btn-lg px-4">Add</button>
+                </div>
+                {{form.title.errors}}
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
