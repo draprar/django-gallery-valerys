@@ -1,70 +1,56 @@
 {% extends 'core.html' %}
 {% load static %}
+
 {% block title %}Home{% endblock %}
 
 {% block content %}
 <section class="my-5">
-    <div class="container">
-        <div class="row my-2 py-4">
-            <div class="col-lg-12 align-items-center">
-                <ul class="nav nav-pills">
-                    {% if selected_category == "All" %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">All</a>
-                </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{% url 'home' %}">All</a>
-                    </li>
-                    {% endif %}
-                    {% for category in categories %}
-                    {% if selected_category == category.title %}
-                <li class="nav-item">
-                    <a class="nav-link active" href="?category={{category.title}}">{{category.title|title}}</a>
-                </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="?category={{category.title}}">{{category.title|title}}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                <li class="nav-item ms-auto">
-                    <a class="btn btn-primary px-4" href="{% url 'upload-image' %}">Add Image</a>
-                </li>
-            </ul>
-            </div>
-        </div>
-        <div class="row">
-            {% for object in object_list %}
-            <div class="col-lg-4 text-center my-2">
-                <div class="card" style="width: 18rem;">
-                    <img src="{{ object.image.url }}" class="img-fluid gallery-images" alt="...">
-                    <div class="card-body">
-                        <a data-bs-toggle="modal" data-bs-target="#exampleModal_{{object.id}}" href="#" class="btn btn-outline-primary px-4 btn-lg">View</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal_{{object.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="my-2">
-                        <img style="width: 100%" src="{{ object.image.url }}" alt="">
-                    </div>
-                      <p class="my-2 py-4 lead">
-                          {{ object.description }}
-                      </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-        </div>
+  <div class="container">
+    <!-- Category Filters -->
+    <div class="row my-2 py-4">
+      <div class="col-lg-12">
+        <ul class="nav nav-pills justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link {% if selected_category == 'All' %}active{% endif %}" href="{% url 'home' %}">All</a>
+          </li>
+          {% for category in categories %}
+          <li class="nav-item">
+            <a class="nav-link {% if selected_category == category.title %}active{% endif %}" href="?category={{category.title}}">{{ category.title|title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+
+    <!-- Gallery Grid -->
+    <div class="row g-4">
+      {% for object in object_list %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm">
+          <img src="{{ object.image.url }}" class="card-img-top gallery-images" alt="{{ object.description|default:"Image" }}">
+          <div class="card-body text-center">
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal_{{ object.id }}">View</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Modal -->
+      <div class="modal fade" id="modal_{{ object.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">{{ object.description|default:"Image View" }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.description }}">
+              <p class="mt-3">{{ object.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 {% endblock %}

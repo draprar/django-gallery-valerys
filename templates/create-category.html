@@ -1,25 +1,29 @@
 {% extends "core.html" %}
-{% block title %} Create category {% endblock %}
+{% block title %}Create Category{% endblock %}
 
 {% block content %}
-
 <section class="my-5">
-    <div class="container">
-        <div class="row justify-content-center py-4">
-            <div class="col-lg-8 my-2">
-                <h3>Create new category</h3>
-                <hr>
-            </div>
-            <form class="col-lg-8 my-2" method="POST">
-                {% csrf_token %}
-                <div class="form-group d-flex flex-row my-2">
-                    <input class="form-control" type="text" name="title">
-                    <button class="btn btn-primary ms-2 btn-lg px-4">Add</button>
-                </div>
-                {{form.title.errors}}
-            </form>
-        </div>
-    </div>
-</section>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <h3>Create New Category</h3>
+        <p class="text-muted">Add a new category to organize your images.</p>
+        <hr>
 
+        <!-- Category Form -->
+        <form method="POST" class="mt-4">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="title" class="form-label">Category Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+            {% if form.title.errors %}
+              <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Category</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
