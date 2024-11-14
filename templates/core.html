@@ -11,16 +11,36 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">Gallery App</a>
+        <a class="navbar-brand" href="{% url 'home' %}">Valery's Gallery</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+          {% if request.user.is_staff %}
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item"><a class="nav-link" href="{% url 'upload-image' %}">Upload Image</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'create-category' %}">Create Category</a></li>
+            </ul>
+          {% else %}
+
+          <!-- Category filter links for non-admin users -->
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'upload-image' %}">Upload Image</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'create-category' %}">Create Category</a></li>
-          </ul>
+          <li class="nav-item">
+            <a class="nav-link {% if selected_category == 'All' %}active{% endif %}" href="{% url 'home' %}"><strong>All</strong></a>
+          </li>
+          {% for category in categories %}
+              <li class="nav-item">
+                  <a class="nav-link {% if selected_category == category.title %}active{% endif %}" href="?category={{ category.title }}">
+                      {{ category.title|title }}
+                  </a>
+              </li>
+          {% endfor %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'contact' %}"><strong>Contact</strong></a>
+            </li>
+        </ul>
+    {% endif %}
+
         </div>
       </div>
     </nav>

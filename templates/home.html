@@ -1,27 +1,9 @@
 {% extends 'core.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Valery's Gallery{% endblock %}
 
 {% block content %}
-<section class="my-5">
-  <div class="container">
-    <!-- Category Filters -->
-    <div class="row my-2 py-4">
-      <div class="col-lg-12">
-        <ul class="nav nav-pills justify-content-center">
-          <li class="nav-item">
-            <a class="nav-link {% if selected_category == 'All' %}active{% endif %}" href="{% url 'home' %}">All</a>
-          </li>
-          {% for category in categories %}
-          <li class="nav-item">
-            <a class="nav-link {% if selected_category == category.title %}active{% endif %}" href="?category={{category.title}}">{{ category.title|title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
     <!-- Gallery Grid -->
     <div class="row g-4">
       {% for object in object_list %}
@@ -30,6 +12,9 @@
           <img src="{{ object.image.url }}" class="card-img-top gallery-images" alt="{{ object.description|default:"Image" }}">
           <div class="card-body text-center">
             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal_{{ object.id }}">View</button>
+            {% if request.user.is_staff %}
+            <a href="{% url 'delete-image' object.id %}" class="btn btn-outline-danger ms-2">Delete</a>
+            {% endif %}
           </div>
         </div>
       </div>

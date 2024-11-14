@@ -1,7 +1,12 @@
-from django.views import generic
+from django.conf import settings
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.views import generic, View
 from django.urls import reverse_lazy
+from django.shortcuts import render, redirect
 from .models import Category, Gallery
-from .forms import GalleryForm, CategoryForm
+from .forms import GalleryForm, CategoryForm, ContactForm
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 class Home(generic.ListView):
@@ -22,15 +27,57 @@ class Home(generic.ListView):
         context['selected_category'] = category if category else "All"
         return context
 
-class UploadImage(generic.CreateView):
+
+class AdminOnlyMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You do not have permission to perform this action.")
+        return redirect('home')
+
+
+class UploadImage(AdminOnlyMixin, generic.CreateView):
     model = Gallery
     template_name = 'upload-image.html'
     form_class = GalleryForm
     success_url = reverse_lazy('home')
 
 
-class CreateCategory(generic.CreateView):
+class DeleteImage(AdminOnlyMixin, generic.DeleteView):
+    model = Gallery
+    template_name = 'delete-image.html'
+    success_url = reverse_lazy('home')
+
+
+class CreateCategory(AdminOnlyMixin, generic.CreateView):
     model = Category
     template_name = 'create-category.html'
     form_class = CategoryForm
     success_url = reverse_lazy('upload-image')
+
+
+class ContactView(View):
+    template_name = 'contact.html'
+
+    def get(self, request):
+        form = ContactForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Save to the database
+            form.save()
+
+            # Send email notification (configure settings in settings.py)
+            send_mail(
+                'New Contact Form Submission',
+                f"Message from {form.cleaned_data['name']} ({form.cleaned_data['email']}):\n\n{form.cleaned_data['message']}",
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER],
+            )
+
+            messages.success(request, 'Your message has been sent successfully!')
+            return redirect('contact')
+        return render(request, self.template_name, {'form': form})
