@@ -22,38 +22,72 @@
               <li class="nav-item"><a class="nav-link" href="{% url 'upload-image' %}">Upload Image</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'create-category' %}">Create Category</a></li>
             </ul>
-          {% else %}
-          <!-- Category filter links for non-admin users -->
-          <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link {% if selected_category == 'All' %}active{% endif %}" href="{% url 'home' %}"><strong>All</strong></a>
-          </li>
+          {% elif request.resolver_match.url_name != 'contact' %}
+            <!-- Category filter links for non-admin users -->
+            <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link {% if selected_category == 'All' %}active{% endif %}" href="{% url 'home' %}"><strong>All</strong></a>
+            </li>
           {% for category in categories %}
-              <li class="nav-item">
-                  <a class="nav-link {% if selected_category == category.title %}active{% endif %}" href="?category={{ category.title }}">
-                      {{ category.title|title }}
-                  </a>
-              </li>
+            <li class="nav-item">
+                <a class="nav-link {% if selected_category == category.title %}active{% endif %}" href="?category={{ category.title }}">
+                    {{ category.title|title }}
+                </a>
+            </li>
           {% endfor %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'contact' %}"><strong>Contact</strong></a>
             </li>
-        </ul>
-    {% endif %}
-
+          </ul>
+          {% endif %}
         </div>
       </div>
     </nav>
+
+    <!-- Carousel -->
+    <div id="carouselFade" class="carousel slide carousel-fade my-4" data-bs-ride="carousel" data-bs-interval="3000">
+      <div class="carousel-inner">
+        {% for object in object_list %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ object.image.url }}" class="d-block w-100" style="max-height: 50vh; object-fit: cover;">
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+              <h5>{{ object.description|default:"Untitled" }}</h5>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselFade" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselFade" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
     <!-- Main Content -->
     <main class="container my-5 pt-5">
       {% block content %}{% endblock content %}
     </main>
     
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3">
-      <div class="container">
-        <p>&copy; {{ now.year }} Valery's Gallery. All rights reserved.</p>
-      </div>
+    <footer class="p-4 bg-dark text-white text-center footer" id="footer">
+        <div class="container p-4 pb-0">
+            <p class="pb-0 mb-0">
+                Like what you see? Let’s create something amazing together!
+                <br><a href="{% url 'contact' %}" class="btn btn-light mt-2">Contact Me</a>
+            </p>
+        </div>
+        <div class="container">
+            <p class="pt-1 mt-1">
+                &copy; 2024 Valery's Gallery. All rights reserved.
+            </p>
+            <p class="small">
+                Powered by:
+                <br>Python, Django, SQLite (database), HTML, CSS&Bootstrap, and JavaScript.
+            </p>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
