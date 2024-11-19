@@ -1,0 +1,58 @@
+name: Django CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          if [ $RUNNER_OS != "Windows" ]; then
+            sed -i '/pywin32/d' requirements.txt
+          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+
+      - name: Set up environment variables
+        run: |
+          echo "DEBUG=False" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> .env
+          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> .env
+          echo "EMAIL_USE_TLS=${{ secrets.EMAIL_USE_TLS }}" >> .env
+          echo "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" >> .env
+          echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+          echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }}" >> .env
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+      - name: Run migrations
+        run: |
+          python manage.py makemigrations
+          python manage.py migrate
+
+      - name: Collect static
+        run: |
+          python manage.py collectstatic --noinput
+
+      - name: Run tests with pytest
+        run: |
+          mkdir -p ./test-reports
+          pytest --disable-warnings
