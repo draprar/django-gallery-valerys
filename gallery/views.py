@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.views import generic, View
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Gallery
 from .forms import GalleryForm, CategoryForm, ContactForm
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -25,6 +25,7 @@ class Home(generic.ListView):
         context = super().get_context_data(**kwargs)
         category = self.request.GET.get('category', None)
         context['selected_category'] = category if category else "All"
+        context['categories'] = Category.objects.all()
         return context
 
 
@@ -48,6 +49,9 @@ class DeleteImage(AdminOnlyMixin, generic.DeleteView):
     model = Gallery
     template_name = 'delete-image.html'
     success_url = reverse_lazy('home')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Gallery, pk=self.kwargs['pk'])
 
 
 class CreateCategory(AdminOnlyMixin, generic.CreateView):
