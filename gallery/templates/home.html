@@ -11,7 +11,7 @@
       <div class="card h-100 shadow-sm">
         <img src="{{ object.image.url }}" class="card-img-top gallery-images" alt="{{ object.description|default:'Image' }}">
         <div class="card-body text-center">
-          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal_{{ object.id }}">View</button>
+          <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal_{{ object.id }}">View</button>
           {% if request.user.is_staff %}
           <a href="{% url 'delete-image' object.id %}" class="btn btn-outline-danger ms-2">Delete</a>
           {% endif %}
@@ -21,19 +21,26 @@
 
     <!-- Image Modal -->
     <div class="modal fade" id="modal_{{ object.id }}" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{ object.description|default:"Image View" }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.description }}">
-            <p class="mt-3">{{ object.description }}</p>
-          </div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ object.description|default:"Image View" }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="image-container" style="position: relative;">
+                        <img id="image_{{ object.id }}" src="{{ object.image.url }}" class="img-fluid zoomable" alt="{{ object.description }}" data-scale="1">
+                        <div class="zoom-controls" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+                            <button class="btn btn-outline-dark zoom-btn" data-zoom-type="in" data-target-id="image_{{ object.id }}">+</button>
+                            <button class="btn btn-outline-dark zoom-btn" data-zoom-type="out" data-target-id="image_{{ object.id }}">−</button>
+                        </div>
+                    </div>
+                    <p class="mt-3">{{ object.description }}</p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+
   {% endfor %}
 </div>
 {% endblock %}
