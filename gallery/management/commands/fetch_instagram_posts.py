@@ -1,23 +1,35 @@
-import os
-import requests
-from gallery.models import InstagramPost, Category
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from gallery.models import Category, InstagramPost
 
 
-def fetch_instagram_posts():
-    access_token = os.environ.get('INSTAGRAM_ACCESS_TOKEN')
-    if not access_token:
-        raise ValueError("Instagram access token is missing. Set it in your .env file.")
+class Command(BaseCommand):
+    help = 'Fetch Instagram posts and assign to a specific category'
 
-    url = f"https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,timestamp&access_token={access_token}"
-    response = requests.get(url).json()
+    def handle(self, *args, **kwargs):
+        # Get the "Otednawden" category
+        category = Category.objects.get(title='Otednawden')
 
-    drawing_category, _ = Category.objects.get_or_create(title="Drawing")
+        # Manually adding Instagram posts
+        posts = [
+            {
+                'image_url': 'https://www.instagram.com/p/C9rut_PCAX_/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==/',
+                'caption': 'I #drawing #draw #sketch #sketching #sketchbook #drawings #sketching #pencildrawing #pencil',
+                'created_at': timezone.now(),
+            },
+            {
+                'image_url': 'https://www.instagram.com/p/C9u2COtCx3F/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
+                'caption': 'III #drawing #draw #sketch #sketching #sketchbook #drawings #sketching #pencildrawing #pencil',
+                'created_at': timezone.now(),
+            },
+        ]
 
-    for post in response.get('data', []):
-        if post['media_type'] == 'IMAGE':
-            InstagramPost.objects.get_or_create(
-                image_url=post['media_url'],
-                caption=post.get('caption', ''),
-                created_at=post['timestamp'],
-                category=drawing_category
+        for post_data in posts:
+            InstagramPost.objects.create(
+                image_url=post_data['image_url'],
+                caption=post_data['caption'],
+                created_at=post_data['created_at'],
+                category=category,
             )
+
+        self.stdout.write(self.style.SUCCESS('Successfully added Instagram posts to Otednawden category'))

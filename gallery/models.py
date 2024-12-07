@@ -32,3 +32,10 @@ class Contact(models.Model):
 
     def __str__(self):
         return f"Message from {self.name}"
+
+
+class InstagramPost(models.Model):
+    image_url = models.URLField()
+    caption = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, default=None)

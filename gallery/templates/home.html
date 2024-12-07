@@ -41,6 +41,17 @@
         </div>
     </div>
 
+    {% for post in instagram_posts %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm">
+          <blockquote class="instagram-media" data-instgrm-permalink="{{ post.image_url }}" data-instgrm-version="13">
+            <a href="{{ post.image_url }}" target="_blank">Link to the Instagram post</a>
+          </blockquote>
+          <script async src="https://www.instagram.com/embed.js"></script>
+        </div>
+      </div>
+    {% endfor %}
+
   {% endfor %}
 </div>
 {% endblock %}

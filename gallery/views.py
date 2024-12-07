@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.views import generic, View
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Gallery
+from .models import Category, Gallery, InstagramPost
 from .forms import GalleryForm, CategoryForm, ContactForm
 from django.contrib.auth.mixins import UserPassesTestMixin
 
@@ -26,6 +26,13 @@ class Home(generic.ListView):
         category = self.request.GET.get('category', None)
         context['selected_category'] = category if category else "All"
         context['categories'] = Category.objects.all()
+
+        # Include Instagram posts in context
+        if category:
+            context['instagram_posts'] = InstagramPost.objects.filter(category__title=category)
+        else:
+            context['instagram_posts'] = InstagramPost.objects.all()
+
         return context
 
 
