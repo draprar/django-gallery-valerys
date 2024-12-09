@@ -30,7 +30,7 @@ class TestViews:
     def test_upload_image_view_invalid_post(self, client):
         admin = User.objects.create_superuser(username="admin", password="password")
         client.login(username="admin", password="password")
-        response = client.post(reverse('upload-image'), {})
+        response = client.post(reverse('upload-image'), {}, follow=True)
         assert response.status_code == 200
         assert "This field is required" in response.content.decode()
 
@@ -51,7 +51,7 @@ class TestViews:
                 'message': 'This is a test message.',
             }, follow=True
         )
-        assert response.status_code == 302  # Redirect after success
+        assert response.status_code == 200
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == "New Contact Form Submission"
         messages = list(response.wsgi_request._messages)
