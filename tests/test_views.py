@@ -6,10 +6,14 @@ from django.contrib.auth.models import User
 from gallery.models import Category, Gallery, InstagramPost, Contact
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.test.utils import override_settings
 
 
 @pytest.mark.django_db
 class TestViews:
+
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_home_view(self, client):
         category = Category.objects.create(title="Nature")
         gallery_item = Gallery.objects.create(category=category, image="images/test.jpg")
@@ -21,6 +25,7 @@ class TestViews:
         assert 'instagram_posts' in response.context
         assert gallery_item in response.context['object_list']
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_home_view_filtered_by_category(self, client):
         category = Category.objects.create(title="Nature")
         other_category = Category.objects.create(title="Animals")
@@ -33,6 +38,7 @@ class TestViews:
         assert len(response.context['object_list']) == 1
         assert response.context['object_list'][0].category.title == "Nature"
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_upload_image_view_get(self, client):
         user = User.objects.create_user(username='admin', password='password', is_staff=True)
         client.login(username='admin', password='password')
@@ -42,6 +48,7 @@ class TestViews:
         assert response.status_code == 200
         assert 'form' in response.context
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     @override_settings(MEDIA_ROOT=tempfile.gettempdir())  # Use a temp directory for media
     def test_upload_image_view_post(self, client):
         user = User.objects.create_user(username='admin', password='password', is_staff=True)
@@ -67,6 +74,7 @@ class TestViews:
         uploaded_image = Gallery.objects.first()
         assert uploaded_image.image.name.startswith('images/test_image')
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_delete_image_view(self, client):
         user = User.objects.create_user(username='admin', password='password', is_staff=True)
         category = Category.objects.create(title="Nature")
@@ -77,6 +85,7 @@ class TestViews:
         assert response.status_code == 302  # Redirect after deletion
         assert Gallery.objects.count() == 0
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_create_category_view(self, client):
         user = User.objects.create_user(username='admin', password='password', is_staff=True)
         client.login(username='admin', password='password')
@@ -87,11 +96,13 @@ class TestViews:
         assert Category.objects.count() == 1
         assert Category.objects.first().title == 'New Category'
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_contact_view_get(self, client):
         response = client.get(reverse('contact'))
         assert response.status_code == 200
         assert 'form' in response.context
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_contact_view_post_valid(self, client, settings):
         settings.DEFAULT_FROM_EMAIL = 'test@example.com'
         settings.EMAIL_HOST_USER = 'host@example.com'
@@ -107,6 +118,7 @@ class TestViews:
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == 'New Contact Form Submission'
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def test_contact_view_post_invalid(self, client):
         response = client.post(reverse('contact'), {
             'name': '',
