@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Gallery, InstagramPost
 from .forms import GalleryForm, CategoryForm, ContactForm
+from django.core.mail import BadHeaderError
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 
@@ -78,17 +79,21 @@ class ContactView(View):
     def post(self, request):
         form = ContactForm(request.POST)
         if form.is_valid():
-            # Save to the database
-            form.save()
+            try:
+                # Save to the database
+                form.save()
 
-            # Send email notification (configure settings in settings.py)
-            send_mail(
-                'New Contact Form Submission',
-                f"Message from {form.cleaned_data['name']} ({form.cleaned_data['email']}):\n\n{form.cleaned_data['message']}",
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.EMAIL_HOST_USER],
-            )
-
-            messages.success(request, 'Your message has been sent successfully!')
+                # Send email notification
+                send_mail(
+                    'New Contact Form Submission',
+                    f"Message from {form.cleaned_data['name']} ({form.cleaned_data['email']}):\n\n{form.cleaned_data['message']}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.EMAIL_HOST_USER],
+                )
+                messages.success(request, 'Your message has been sent successfully!')
+            except BadHeaderError:
+                messages.error(request, "Invalid header found.")
+            except Exception as e:
+                messages.error(request, "An error occurred while sending the email. Please try again later.")
             return redirect('contact')
         return render(request, self.template_name, {'form': form})
