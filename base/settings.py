@@ -146,11 +146,19 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
 # Security & Session settings
 if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000  # enforce HTTPS for one year
+    # Enforce HTTPS and related security features
+    SECURE_HSTS_SECONDS = 31536000  # Enable HSTS for 1 year (recommended for production)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = True  # redirect all HTTP traffic to HTTPS
-    SESSION_COOKIE_AGE = 1200  # session expiry time in seconds
-    SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # expire session on browser close
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+
+    # Secure Cookies
+    SESSION_COOKIE_SECURE = True  # Ensures cookies are only sent over HTTPS
+    CSRF_COOKIE_SECURE = True  # Ensures CSRF cookie is only sent over HTTPS
+
+    # X-Frame-Options to prevent clickjacking
+    X_FRAME_OPTIONS = 'DENY'
+
+    # Content Security Policy (CSP) Headers (Optional)
+    SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter in browsers
+    SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing

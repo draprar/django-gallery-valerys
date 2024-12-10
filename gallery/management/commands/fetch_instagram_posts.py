@@ -7,29 +7,30 @@ class Command(BaseCommand):
     help = 'Fetch Instagram posts and assign to a specific category'
 
     def handle(self, *args, **kwargs):
-        # Get the "Otednawden" category
-        category = Category.objects.get(title='Otednawden')
+        # Get the "Otednawden" category or prompt the user to specify a category
+        category_title = input("Enter the category title (default: 'Otednawden'): ") or 'Otednawden'
+        try:
+            category = Category.objects.get(title=category_title)
+        except Category.DoesNotExist:
+            self.stdout.write(self.style.ERROR(f"Category '{category_title}' does not exist."))
+            return
 
-        # Manually adding Instagram posts
-        posts = [
-            {
-                'image_url': 'https://www.instagram.com/p/C9rut_PCAX_/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==/',
-                'caption': 'I #drawing #draw #sketch #sketching #sketchbook #drawings #sketching #pencildrawing #pencil',
-                'created_at': timezone.now(),
-            },
-            {
-                'image_url': 'https://www.instagram.com/p/C9u2COtCx3F/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
-                'caption': 'III #drawing #draw #sketch #sketching #sketchbook #drawings #sketching #pencildrawing #pencil',
-                'created_at': timezone.now(),
-            },
-        ]
+        while True:
+            # Collect post details from the user
+            image_url = input("Enter the Instagram post URL (or type 'exit' to quit): ")
+            if image_url.lower() == 'exit':
+                break
 
-        for post_data in posts:
+            caption = input("Enter the post caption: ")
+            created_at = timezone.now()  # You can allow a custom date if needed
+
+            # Save the post
             InstagramPost.objects.create(
-                image_url=post_data['image_url'],
-                caption=post_data['caption'],
-                created_at=post_data['created_at'],
+                image_url=image_url,
+                caption=caption,
+                created_at=created_at,
                 category=category,
             )
+            self.stdout.write(self.style.SUCCESS(f"Successfully added Instagram post: {image_url}"))
 
-        self.stdout.write(self.style.SUCCESS('Successfully added Instagram posts to Otednawden category'))
+        self.stdout.write(self.style.SUCCESS('All posts added successfully!'))
