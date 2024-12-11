@@ -7,7 +7,7 @@
 <!-- Content after the carousel -->
 
 <div class="row g-4">
-    {% for post in instagram_posts %}
+    {% for post in instagram_posts|slice:":-1" %}
       <div class="col-lg-4 col-md-6">
         <div class="card h-100 shadow-sm">
           <blockquote class="instagram-media" data-instgrm-permalink="{{ post.image_url }}" data-instgrm-version="13">
