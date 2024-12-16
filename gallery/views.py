@@ -30,9 +30,9 @@ class Home(generic.ListView):
 
         # Include Instagram posts in context
         if category:
-            context['instagram_posts'] = InstagramPost.objects.filter(category__title=category)
+            context['instagram_posts'] = InstagramPost.objects.filter(category__title=category).order_by('-created_at')
         else:
-            context['instagram_posts'] = InstagramPost.objects.all()
+            context['instagram_posts'] = InstagramPost.objects.all().order_by('-created_at')
 
         return context
 
