@@ -1,7 +1,9 @@
 # Valery's Gallery
 
 Valery's Gallery is a Django-based web application that serves as a personal portfolio for showcasing artwork. It supports image categorization, interactive browsing, and integration with Instagram to automatically update new posts into a dedicated category. The project is designed with a focus on simplicity and usability, making it easy to manage and explore content.
+
 [Visit Valery's Gallery](https://walery.pythonanywhere.com/)
+
 ![Project Demo](gallery/ss.png)
 
 ## Features
