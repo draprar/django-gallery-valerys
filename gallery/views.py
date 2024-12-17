@@ -1,21 +1,28 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.core.mail import send_mail, BadHeaderError
 from django.views import generic, View
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Gallery, InstagramPost
 from .forms import GalleryForm, CategoryForm, ContactForm
-from django.core.mail import BadHeaderError
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 class Home(generic.ListView):
+    """
+    Displays the homepage with a list of Gallery images.
+    Allows filtering by category using GET parameters.
+    """
+
     model = Gallery
     template_name = 'home.html'
     queryset = Gallery.objects.all()
 
     def get_queryset(self):
+        """
+        Optionally filters images by the selected category.
+        """
         queryset = super().get_queryset()
         category = self.request.GET.get('category', None)
         if category:
@@ -23,6 +30,9 @@ class Home(generic.ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        """
+        Adds categories and Instagram posts to the context.
+        """
         context = super().get_context_data(**kwargs)
         category = self.request.GET.get('category', None)
         context['selected_category'] = category if category else "All"
@@ -38,15 +48,24 @@ class Home(generic.ListView):
 
 
 class AdminOnlyMixin(UserPassesTestMixin):
+    """
+    Mixin to restrict access to admin-only views.
+    """
     def test_func(self):
         return self.request.user.is_staff
 
     def handle_no_permission(self):
+        """
+        Redirects unauthorized users to the home page with an error message.
+        """
         messages.error(self.request, "You do not have permission to perform this action.")
         return redirect('home')
 
 
 class UploadImage(AdminOnlyMixin, generic.CreateView):
+    """
+    View for admins to upload a new image to the gallery.
+    """
     model = Gallery
     template_name = 'upload-image.html'
     form_class = GalleryForm
@@ -54,15 +73,24 @@ class UploadImage(AdminOnlyMixin, generic.CreateView):
 
 
 class DeleteImage(AdminOnlyMixin, generic.DeleteView):
+    """
+    View for admins to delete an existing image from the gallery.
+    """
     model = Gallery
     template_name = 'delete-image.html'
     success_url = reverse_lazy('home')
 
     def get_object(self, queryset=None):
+        """
+        Retrieves the image object based on the primary key.
+        """
         return get_object_or_404(Gallery, pk=self.kwargs['pk'])
 
 
 class CreateCategory(AdminOnlyMixin, generic.CreateView):
+    """
+    View for admins to create a new image category.
+    """
     model = Category
     template_name = 'create-category.html'
     form_class = CategoryForm
@@ -70,13 +98,24 @@ class CreateCategory(AdminOnlyMixin, generic.CreateView):
 
 
 class ContactView(View):
+    """
+    Handles displaying and processing of the contact form.
+    """
+
     template_name = 'contact.html'
 
     def get(self, request):
+        """
+        Renders an empty contact form.
+        """
         form = ContactForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
+        """
+        Processes the submitted contact form.
+        Sends an email and saves the data to the database.
+        """
         form = ContactForm(request.POST)
         if form.is_valid():
             try:
