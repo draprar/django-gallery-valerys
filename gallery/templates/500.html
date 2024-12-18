@@ -1,0 +1,11 @@
+{% extends 'core.html' %}
+
+{% block title %}Server Error - Valery's Gallery{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-4 text-danger">500</h1>
+    <p class="lead">Something went wrong on our end. Please try again later.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Return to Home</a>
+</div>
+{% endblock %}

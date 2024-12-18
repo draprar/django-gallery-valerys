@@ -21,6 +21,7 @@ class Gallery(models.Model):
     """
     category = models.ForeignKey(Category, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images')
+    title = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -4,9 +4,14 @@ from django.core.mail import send_mail, BadHeaderError
 from django.views import generic, View
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseServerError, HttpResponseNotFound
 from .models import Category, Gallery, InstagramPost
 from .forms import GalleryForm, CategoryForm, ContactForm
 from django.contrib.auth.mixins import UserPassesTestMixin
+import logging
+
+# Setup logging for better debugging and monitoring
+logger = logging.getLogger(__name__)
 
 
 class Home(generic.ListView):
@@ -14,7 +19,6 @@ class Home(generic.ListView):
     Displays the homepage with a list of Gallery images.
     Allows filtering by category using GET parameters.
     """
-
     model = Gallery
     template_name = 'home.html'
     queryset = Gallery.objects.all()
@@ -51,6 +55,7 @@ class AdminOnlyMixin(UserPassesTestMixin):
     """
     Mixin to restrict access to admin-only views.
     """
+
     def test_func(self):
         return self.request.user.is_staff
 
@@ -70,6 +75,20 @@ class UploadImage(AdminOnlyMixin, generic.CreateView):
     template_name = 'upload-image.html'
     form_class = GalleryForm
     success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        """
+        Handle successful form submission with a success message.
+        """
+        messages.success(self.request, "Image uploaded successfully!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """
+        Handle form errors with a user-friendly message.
+        """
+        messages.error(self.request, "Failed to upload image. Please correct the errors.")
+        return super().form_invalid(form)
 
 
 class DeleteImage(AdminOnlyMixin, generic.DeleteView):
@@ -101,7 +120,6 @@ class ContactView(View):
     """
     Handles displaying and processing of the contact form.
     """
-
     template_name = 'contact.html'
 
     def get(self, request):
@@ -130,9 +148,27 @@ class ContactView(View):
                     [settings.EMAIL_HOST_USER],
                 )
                 messages.success(request, 'Your message has been sent successfully!')
-            except BadHeaderError:
+            except BadHeaderError as e:
+                logger.error(f"BadHeaderError: {e}")
                 messages.error(request, "Invalid header found.")
             except Exception as e:
+                logger.error(f"Error sending email: {e}")
                 messages.error(request, "An error occurred while sending the email. Please try again later.")
             return redirect('contact')
         return render(request, self.template_name, {'form': form})
+
+
+def custom_404(request, exception):
+    """
+    Custom 404 error view.
+    Renders the 404.html template with a 404 status code.
+    """
+    return render(request, '404.html', status=404)
+
+
+def custom_500(request):
+    """
+    Custom 500 error view.
+    Renders the 500.html template with a 500 status code.
+    """
+    return render(request, '500.html', status=500)

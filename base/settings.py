@@ -10,28 +10,47 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
-from urllib.parse import urlparse
-from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Load environment variables from the .env file
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+def get_env_bool(var_name, default=False):
+    """
+    Utility function to fetch environment variables as booleans.
+    """
+    return os.getenv(var_name, str(default)).lower() in ("true", "1", "yes")
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
+# SECURITY SETTINGS
 SECRET_KEY = os.environ.get('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
+DEBUG = get_env_bool('DEBUG', default=False)
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
+# Security & Session settings
+if not DEBUG:
+    # Enforce HTTPS and related security features
+    SECURE_HSTS_SECONDS = 31536000  # Enable HSTS for 1 year (recommended for production)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+
+    # Secure Cookies
+    SESSION_COOKIE_SECURE = True  # Ensures cookies are only sent over HTTPS
+    CSRF_COOKIE_SECURE = True  # Ensures CSRF cookie is only sent over HTTPS
+
+    # X-Frame-Options to prevent clickjacking
+    X_FRAME_OPTIONS = 'DENY'
+
+    # Content Security Policy (CSP) Headers
+    SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter in browsers
+    SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Application definition
 
@@ -77,14 +96,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'base.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
+# DATABASE CONFIGURATION
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql' if os.getenv("USE_MYSQL", "False").lower() == "true" else 'django.db.backends.sqlite3',
-        'NAME': os.getenv("DB_NAME") if os.getenv("USE_MYSQL", "False").lower() == "true" else BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql' if get_env_bool("USE_MYSQL") else 'django.db.backends.sqlite3',
+        'NAME': os.getenv("DB_NAME", BASE_DIR / 'db.sqlite3'),
         'USER': os.getenv("DB_USER", ""),
         'PASSWORD': os.getenv("DB_PASSWORD", ""),
         'HOST': os.getenv("DB_HOST", "localhost"),
@@ -92,7 +108,7 @@ DATABASES = {
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
-        } if os.getenv("USE_MYSQL", "False").lower() == "true" else {},
+        } if get_env_bool("USE_MYSQL") else {},
     }
 }
 
@@ -153,22 +169,3 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
-
-# Security & Session settings
-if not DEBUG:
-    # Enforce HTTPS and related security features
-    SECURE_HSTS_SECONDS = 31536000  # Enable HSTS for 1 year (recommended for production)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
-
-    # Secure Cookies
-    SESSION_COOKIE_SECURE = True  # Ensures cookies are only sent over HTTPS
-    CSRF_COOKIE_SECURE = True  # Ensures CSRF cookie is only sent over HTTPS
-
-    # X-Frame-Options to prevent clickjacking
-    X_FRAME_OPTIONS = 'DENY'
-
-    # Content Security Policy (CSP) Headers (Optional)
-    SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter in browsers
-    SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
