@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseServerError, HttpResponseNotFound
 from .models import Category, Gallery, InstagramPost
 from .forms import GalleryForm, CategoryForm, ContactForm
+from .serializers import GallerySerializer, CategorySerializer
+from rest_framework import generics, filters
 from django.contrib.auth.mixins import UserPassesTestMixin
 import logging
 
@@ -172,3 +174,21 @@ def custom_500(request):
     Renders the 500.html template with a 500 status code.
     """
     return render(request, '500.html', status=500)
+
+
+class CategoryListView(generics.ListAPIView):
+    """
+    API view to retrieve a list of all categories.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GalleryListView(generics.ListAPIView):
+    """
+    API view to retrieve a list of all gallery items, with optional filtering by category.
+    """
+    queryset = Gallery.objects.all()
+    serializer_class = GallerySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['category__title', 'title']  # Enable searching by category or image title
