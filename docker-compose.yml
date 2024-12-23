@@ -5,7 +5,10 @@ services:
     build:
       context: .
     container_name: django_gallery_web
-    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DOCKERIZED=True
+    command: >
+      gunicorn base.wsgi:application --bind 0.0.0.0:8000 --workers=3
     volumes:
       - .:/app
       - static_volume:/app/static
