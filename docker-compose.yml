@@ -10,13 +10,22 @@ services:
     command: >
       gunicorn base.wsgi:application --bind 0.0.0.0:8000 --workers=3
     volumes:
-      - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
-    ports:
-      - "8000:8000"
     env_file:
       - .env
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - web
 
 volumes:
   static_volume:
