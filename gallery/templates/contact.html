@@ -3,6 +3,16 @@
 {% block title %}Contact{% endblock %}
 
 {% block content %}
+{% if messages %}
+<div class="alert-container">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="container mt-5">
     <h1>Contact</h1>
     <form method="post">
@@ -11,4 +21,14 @@
         <button type="submit" class="btn btn-dark btn-block">Send</button>
     </form>
 </div>
+
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.style.display = 'none', 500);
+        });
+    }, 5000);
+</script>
 {% endblock %}
