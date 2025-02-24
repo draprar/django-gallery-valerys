@@ -5,7 +5,7 @@ from .models import Category, Gallery, Contact
 class GalleryForm(forms.ModelForm):
     class Meta:
         model = Gallery
-        fields = ['category', 'image', 'title', 'description', 'created_at']
+        fields = ['category', 'image', 'title', 'description']
 
 
 class CategoryForm(forms.ModelForm):
