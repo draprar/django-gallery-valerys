@@ -132,7 +132,7 @@ body {
 }
 
 .instagram-item {
-    flex: 1 1 300px;
+    width: 100%;
     max-width: 350px;
     text-align: center;
 }
@@ -146,6 +146,12 @@ body {
     .instagram-grid {
         flex-direction: column;
         align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .instagram-item {
+        max-width: 100%;
     }
 }
 
