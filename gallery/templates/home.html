@@ -1,57 +1,63 @@
 {% extends 'core.html' %}
 {% load static %}
 
-{% block title %}Valery's Gallery{% endblock %}
+{% block title %}walerydocholery{% endblock %}
 
 {% block content %}
-<!-- Content after the carousel -->
 
-<div class="row g-4">
-    {% for post in instagram_posts|slice:":-1" %}
-      <div class="col-lg-4 col-md-6">
-        <div class="card h-100 shadow-sm">
-          <blockquote class="instagram-media" data-instgrm-permalink="{{ post.image_url }}" data-instgrm-version="13">
-            <a href="{{ post.image_url }}" target="_blank">Link to the Instagram post</a>
-          </blockquote>
-          <script async src="https://www.instagram.com/embed.js"></script>
-        </div>
-      </div>
-    {% endfor %}
-  {% for object in object_list %}
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <img src="{{ object.image.url }}" class="card-img-top gallery-images" alt="{{ object.description|default:'Image' }}">
-        <div class="card-body text-center">
-          <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal_{{ object.id }}">View</button>
-          {% if request.user.is_staff %}
-          <a href="{% url 'delete-image' object.id %}" class="btn btn-outline-danger ms-2">Delete</a>
-          {% endif %}
-        </div>
-      </div>
+<!-- About Me Section -->
+<section class="about-me fade-in">
+    <div class="about-content">
+        <h1>Welcome to walerydocholery gallery</h1>
+        <p>Have fun exploring my world.</p>
     </div>
+</section>
 
-    <!-- Image Modal -->
-    <div class="modal fade" id="modal_{{ object.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ object.title|default:"Image View" }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="image-container" style="position: relative;">
-                        <img id="image_{{ object.id }}" src="{{ object.image.url }}" class="img-fluid zoomable" alt="{{ object.description }}" data-scale="1">
-                        <div class="zoom-controls" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
-                            <button class="btn btn-outline-dark zoom-btn" data-zoom-type="in" data-target-id="image_{{ object.id }}">+</button>
-                            <button class="btn btn-outline-dark zoom-btn" data-zoom-type="out" data-target-id="image_{{ object.id }}">−</button>
-                        </div>
+<!-- Instagram Section (Show Only If "All" or "Instagram" is Selected) -->
+{% if not selected_category or selected_category == 'All' or selected_category == 'Instagram' %}
+    {% if instagram_posts %}
+        <section class="instagram-section fade-in">
+            <h2 class="section-title">Instagram</h2>
+            <div class="instagram-grid">
+                {% for post in instagram_posts %}
+                    <div class="instagram-item">
+                        <blockquote class="instagram-media" data-instgrm-permalink="{{ post.image_url }}" data-instgrm-version="13">
+                            <a href="{{ post.image_url }}" target="_blank">View on Instagram</a>
+                        </blockquote>
                     </div>
-                    <p class="mt-3">{{ object.description }}</p>
-                </div>
+                {% endfor %}
             </div>
-        </div>
-    </div>
-  {% endfor %}
+            <script async src="https://www.instagram.com/embed.js"></script>
+        </section>
+    {% endif %}
+{% endif %}
 
-</div>
+<!-- Gallery Section (Show Only If "All" or a Gallery Category is Selected) -->
+{% if not selected_category or selected_category == 'All' or selected_category != 'Instagram' %}
+    <section class="gallery-container fade-in">
+        <h2 class="section-title">
+            {% if selected_category and selected_category != 'All' %}
+                {{ selected_category }}
+            {% else %}
+                GenAI
+            {% endif %}
+        </h2>
+
+        <div class="gallery-grid">
+            {% for object in object_list %}
+                <div class="gallery-item">
+                    <a href="{{ object.image.url }}" data-fancybox="gallery" data-caption="{{ object.description|default:'Untitled' }}">
+                        <img src="{{ object.image.url }}" alt="{{ object.description|default:'Artwork' }}" loading="lazy">
+                        <div class="overlay">
+                            <p>{{ object.description|default:"Untitled" }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% empty %}
+                <p class="no-images">No images found in this category.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
 {% endblock %}

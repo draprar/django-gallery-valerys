@@ -5,13 +5,13 @@ from .models import Category, Gallery, Contact
 class GalleryForm(forms.ModelForm):
     class Meta:
         model = Gallery
-        fields = "__all__"
+        fields = ['category', 'image', 'title', 'description', 'created_at']
 
 
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ['title']
 
 
 class ContactForm(forms.ModelForm):

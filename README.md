@@ -45,7 +45,7 @@ Valery's Gallery is a Django-based web application that serves as a personal por
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-repo/valery-gallery.git
+   git clone https://github.com/draprar/django-gallery-valerys.git
    cd valery-gallery
    ```
 2. **Install dependencies**:
@@ -73,18 +73,20 @@ Create a .env file in the project root directory and add the following:
     INSTAGRAM_ACCESS_TOKEN=your-instagram-access-token
    ```
 
-4. **Apply migrations**:
+4. **Make migrations**:
 
-Run the following command to set up the database:
-
+Run the following commands to set up the database:
    ```bash
-  python manage.py migrate
+   python manage.py makemigrations
+   ```
+   ```bash
+   python manage.py migrate
    ```
 
 5. **Create a superuser**:
 
    ```bash
-    python manage.py createsuperuser
+   python manage.py createsuperuser
    ```
 
 6. **Run the development server**:
