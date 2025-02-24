@@ -1,7 +1,7 @@
 /* Global Dark Theme */
 body {
-    background-color: #121212;  /* Dark background */
-    color: #e0e0e0;  /* Light text */
+    background-color: #121212;
+    color: #e0e0e0;
     font-family: 'Poppins', sans-serif;
     padding-top: 20px;
 }
@@ -72,9 +72,9 @@ body {
     color: #fff;
     position: relative;
     padding: 40px;
-    border-radius: 0 0 30px 30px;  /* 🔥 Softer rounded bottom corners */
+    border-radius: 0 0 30px 30px;
     overflow: hidden;
-    box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.05); /* 🔥 Less aggressive shadow */
+    box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.05);
 }
 
 /* Overlay Effect */
